@@ -6,7 +6,7 @@ void addRoundKey(unsigned char* const block, const unsigned char* const key){
     const unsigned char* b = key;
     int i;
     for(i = 0; i < BLOCK_SIZE; i++){
-        *a = *(a)^*(b++);
+        *a = (*a)^(*(b++));
         a++;
     }
 }
