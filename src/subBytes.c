@@ -40,7 +40,7 @@ void subBytes(unsigned char* const block, const unsigned int len){
     int i;
     unsigned char* ptr = block;
     for(i = 0; i < len; i++){
-        *ptr = s[*(ptr)];
+        *ptr = s[*ptr];
         ptr++;
     }
 }
@@ -49,7 +49,7 @@ void invSubBytes(unsigned char* const block, const unsigned int len){
     int i;
     unsigned char* ptr = block;
     for(i = 0; i < len; i++){
-        *ptr = inv_s[*(ptr)];
+        *ptr = inv_s[*ptr];
         ptr++;
     }
 }
