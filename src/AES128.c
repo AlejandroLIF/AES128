@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "AES128.h"
 
@@ -9,7 +10,14 @@
 #include "mixColumns.h"
 #include "keyExpansion.h"
 
-int main(const int argc, char* argv[]){
+
+void encryptFile(char* fileName, char* key);
+void encryptBlock(unsigned char* const block, const unsigned char* const expandedKey);
+void decryptFile(char* fileName, char* key);
+void decryptBlock(unsigned char* const block, const unsigned char* const expandedKey);
+void parseKey(char* key, unsigned char* const keyArray);
+
+int main(int argc, char *argv[]){
     if(argc != 3){
         IO_ERR: printf("Usage: %s [-encrypt|-decrypt] [file] [16-byte HEX Key]\r\n", argv[0]);
         printf("Example: %s -encrypt myFile.txt 00112233445566778899AABBCCDDEEFF\r\n", argv[0]);
@@ -37,13 +45,13 @@ void encryptFile(char* fileName, char* key){
     expand(&keyArray[0]);
     
     FILE *ifp = fopen(fileName, "r");
-    if(ifp = NULL){
+    if(ifp == NULL){
         printf("ERROR: invalid input file\r\n");
         exit(-1);//Cannot continue
     }
     
     FILE *ofp = fopen("AES128_encrypted_output.txt", "w");
-    if(ifp = NULL){
+    if(ifp == NULL){
         printf("ERROR: unable to write output to AES128_encrypted_output.txt\r\n");
         fclose(ifp);
         exit(-1);//Cannot continue
@@ -60,22 +68,22 @@ void encryptFile(char* fileName, char* key){
     fclose(ofp);
 }
 
-void encryptBlock(const unsigned char* block, const unsigned char* expandedKey){
+void encryptBlock(unsigned char* const block, const unsigned char* const expandedKey){
     int keyIndex = 0;
     int i;
     
-    addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE]; //Add round key and increase the key index.
+    addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE]); //Add round key and increase the key index.
 
     for(i = 0; i<9; i++){
         subBytes(block, BLOCK_SIZE);
         shiftRows(block);
         mixColumns(block);
-        addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE];
+        addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE]);
     }
 
     subBytes(block, BLOCK_SIZE);
     shiftRows(block);
-    addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE];
+    addRoundKey(block, &expandedKey[(keyIndex++) * BLOCK_SIZE]);
 }
 
 void decryptFile(char* fileName, char* key){
@@ -85,13 +93,13 @@ void decryptFile(char* fileName, char* key){
     parseKey(key, keyArray);
     
     FILE *ifp = fopen(fileName, "r");
-    if(ifp = NULL){
+    if(ifp == NULL){
         printf("ERROR: invalid input file\r\n");
         exit(-1);//Cannot continue
     }
     
     FILE *ofp = fopen("AES128_decrypted_output.txt", "w");
-    if(ifp = NULL){
+    if(ifp == NULL){
         printf("ERROR: unable to write output to AES128_decrypted_output.txt\r\n");
         fclose(ifp);
         exit(-1);//Cannot continue
@@ -108,28 +116,28 @@ void decryptFile(char* fileName, char* key){
     fclose(ofp);
 }
 
-void decryptBlock(const unsigned char* block, const unsigned char* expandedKey){
+void decryptBlock(unsigned char* const block, const unsigned char* const expandedKey){
     int keyIndex = 10;
     int i;
     
-    addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE]; //Add round key and reduce the key index
+    addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE]); //Add round key and reduce the key index
     
     for(i = 0; i < 9; i++){
         invShiftRows(block);
-        invsubBytes(block, BLOCK_SIZE);
-        addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE];
-        invMixColumn(block);
+        invSubBytes(block, BLOCK_SIZE);
+        addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE]);
+        invMixColumns(block);
     }
     
     invShiftRows(block);
-    invSubBytes(block);
-    addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE];
+    invSubBytes(block, BLOCK_SIZE);
+    addRoundKey(block, &expandedKey[(keyIndex--) * BLOCK_SIZE]);
 }
 
 /*
     Parse the key from its string representation to a byte array.
 */
-void parseKey(char* key, char* keyArray){
+void parseKey(char* key, unsigned char* const keyArray){
     char* temp = key;
     int i = 0;
     //Find the null terminator

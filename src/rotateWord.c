@@ -3,7 +3,7 @@
 /*
     Performs a left-rotation on a 4-byte word.
 */
-void rotateWord(const unsigned char* word){
+void rotateWord(unsigned char* const word){
     unsigned char temp;
     temp = word[0];
     word[0] = word[1];

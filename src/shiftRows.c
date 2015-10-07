@@ -1,6 +1,6 @@
 #include "shiftRows.h"
 
-void shiftRows(const unsigned char* block){
+void shiftRows(unsigned char* const block){
     unsigned char temp;
     //Shift first row
     temp = block[1];
@@ -25,7 +25,7 @@ void shiftRows(const unsigned char* block){
     block[7] = temp;
 }
 
-void invShiftRows(const unsigned char* block){
+void invShiftRows(unsigned char* const block){
     unsigned char temp;
     //Shift first row
     temp = block[13];

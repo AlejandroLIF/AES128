@@ -1,4 +1,7 @@
-#include "shiftRows.c"
+#ifndef SHIFTROWS_H
+#define SHIFTROWS_H
 
-void shiftRows(const unsigned char* block);
-void invshiftRows(const unsigned char* block)
+void shiftRows(unsigned char* const block);
+void invShiftRows(unsigned char* const block);
+
+#endif

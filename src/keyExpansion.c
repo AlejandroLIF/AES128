@@ -1,13 +1,21 @@
 #include "keyExpansion.h"
 #include "rotateWord.h"
+#include "subBytes.h"
 #include "AES128.h"
+
+
+/*
+    Round Constants
+    https://en.wikipedia.org/wiki/Rijndael_key_schedule#Rcon
+*/
+const unsigned char rCon[] = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 /*
     This method was written based on the one provided on http://www.samiam.org/key-schedule.html 
 
     cipherKey is expected to be a pointer to the first element of a 176-byte array.
 */
-void expand(unsigned char* cipherKey){
+void expand(unsigned char* const cipherKey){
     unsigned char temp[WORD_SIZE];
     unsigned char i;
     unsigned char expansionRound = 1;

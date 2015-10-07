@@ -1,3 +1,4 @@
-#include "addRoundKey.c"
-
-void addRoundKey(const unsigned char* block, const unsigned char* key);
+#ifndef ADDROUNDKEY_H
+#define ADDROUNDKEY_H
+void addRoundKey(unsigned char* const block, const unsigned char* const key);
+#endif

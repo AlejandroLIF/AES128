@@ -1,3 +1,6 @@
-#include "rotateWord.c"
+#ifndef ROTATEWORD_H
+#define ROTATEWORD_H
 
-void rotateWord(const unsigned char* word);
+void rotateWord(unsigned char* const word);
+
+#endif

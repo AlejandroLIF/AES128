@@ -1,28 +1,29 @@
 CC=gcc
 ARGS=-O
 
-DEPS= addRoundKey AES128 keyExpansion mixColumns rotateWord shiftRows subBytes
+all: AES128.o addRoundKey.o keyExpansion.o mixColumns.o rotateWord.o shiftRows.o subBytes.o
+	$(CC) $(ARGS) -o AES128.run AES128.o addRoundKey.o keyExpansion.o mixColumns.o rotateWord.o shiftRows.o subBytes.o
 
-/bin/addRoundKey.o : /src/addRoundKey.c
-	$(CC) -c -Wall /src/addRoundKey.c
+addRoundKey.o : addRoundKey.c
+	$(CC)  -c -Wall addRoundKey.c addRoundKey.h
 	
-/bin/AES128.o : /src/AES128.c
-	$(CC) -c -Wall /src/AES128.c
+AES128.o : AES128.c
+	$(CC)  -c -Wall AES128.c AES128.h
 	
-/bin/keyExpansion.o : /src/keyExpansion.c
-	$(CC) -c -Wall /src/keyExpansion.c
+keyExpansion.o : keyExpansion.c
+	$(CC)  -c -Wall keyExpansion.c
 	
-/bin/mixColumns.o : /src/mixColumns.c
-	$(CC) -c -Wall /src/mixColumns.c
+mixColumns.o : mixColumns.c
+	$(CC)  -c -Wall mixColumns.c
 	
-/bin/rotateWord.o : /src/rotateWord.c
-	$(CC) -c -Wall /src/rotateWord.c
+rotateWord.o : rotateWord.c
+	$(CC)  -c -Wall rotateWord.c
 	
-/bin/shiftRows.o : /src/shiftRows.c
-	$(CC) -c -Wall /src/shiftRows.c
+shiftRows.o : shiftRows.c
+	$(CC)  -c -Wall shiftRows.c
 	
-/bin/subBytes.o : /src/subBytes.c
-	$(CC) -c -Wall /src/subBytes.c
+subBytes.o : subBytes.c
+	$(CC)  -c -Wall subBytes.c
 	
-all: /bin/$(DEPS).o
-	$(CC) $(ARGS) -o AES128.run /bin/$(DEPS).o
+clean:
+	rm *.o
