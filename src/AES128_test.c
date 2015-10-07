@@ -20,6 +20,10 @@
                             }\
                         while(0);
 
+/*
+  Reference document: http://www.kavaliro.com/wp-content/uploads/2014/03/AES.pdf
+*/
+
 int main(int argc, char *argv[]){
     unsigned char keyArray[176] = {"Thats my Kung Fu"};
     unsigned char plainText[16] = {"Two One Nine Two"};
