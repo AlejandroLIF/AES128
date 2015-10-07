@@ -18,7 +18,7 @@ void decryptBlock(unsigned char* const block, const unsigned char* const expande
 void parseKey(char* key, unsigned char* const keyArray);
 
 int main(int argc, char *argv[]){
-    if(argc != 3){
+    if(argc != 4){
         IO_ERR: printf("Usage: %s [-encrypt|-decrypt] [file] [16-byte HEX Key]\r\n", argv[0]);
         printf("Example: %s -encrypt myFile.txt 00112233445566778899AABBCCDDEEFF\r\n", argv[0]);
         return -1;
@@ -50,9 +50,9 @@ void encryptFile(char* fileName, char* key){
         exit(-1);//Cannot continue
     }
     
-    FILE *ofp = fopen("AES128_encrypted_output.txt", "w");
+    FILE *ofp = fopen("AES128_encrypted_output", "w");
     if(ifp == NULL){
-        printf("ERROR: unable to write output to AES128_encrypted_output.txt\r\n");
+        printf("ERROR: unable to write output to AES128_encrypted_output\r\n");
         fclose(ifp);
         exit(-1);//Cannot continue
     }
@@ -61,7 +61,7 @@ void encryptFile(char* fileName, char* key){
         memset(&data[0], 0, BLOCK_SIZE); //Make sure "data" holds all zeroes.
         bytesRead = fread(&data[0], 1, BLOCK_SIZE, ifp);
         encryptBlock(&data[0], &keyArray[0]);
-        fwrite(&data[0], 1, BLOCK_SIZE, ofp);
+        fwrite(&data[0], 1, bytesRead, ofp);
     }while(bytesRead == BLOCK_SIZE); //Read until EOF
     
     fclose(ifp);
@@ -91,6 +91,7 @@ void decryptFile(char* fileName, char* key){
     unsigned char data[BLOCK_SIZE];
     unsigned char bytesRead;
     parseKey(key, keyArray);
+    expand(&keyArray[0]);
     
     FILE *ifp = fopen(fileName, "r");
     if(ifp == NULL){
@@ -98,9 +99,9 @@ void decryptFile(char* fileName, char* key){
         exit(-1);//Cannot continue
     }
     
-    FILE *ofp = fopen("AES128_decrypted_output.txt", "w");
+    FILE *ofp = fopen("AES128_decrypted_output", "w");
     if(ifp == NULL){
-        printf("ERROR: unable to write output to AES128_decrypted_output.txt\r\n");
+        printf("ERROR: unable to write output to AES128_decrypted_output\r\n");
         fclose(ifp);
         exit(-1);//Cannot continue
     }
@@ -140,8 +141,10 @@ void decryptBlock(unsigned char* const block, const unsigned char* const expande
 void parseKey(char* key, unsigned char* const keyArray){
     char* temp = key;
     int i = 0;
+    char substring[3] = {0, 0, 0};
     //Find the null terminator
-    while(*(temp++)){
+    while(*temp){
+        temp++;
         i++;
     }
     
@@ -154,9 +157,7 @@ void parseKey(char* key, unsigned char* const keyArray){
     for(i = 15; i >= 0; i--){
         //Cycle back two characters
         temp -= 2;
-        keyArray[i] = (unsigned char) strtol(temp, &key, 16);
-        //Make the two parsed characters zero.
-        *(--key) = 0;
-        *(--key) = 0;
+        memcpy(substring, temp, 2);
+        keyArray[i] = (unsigned char) strtol(&substring[0], &key, 16);
     }
 }
