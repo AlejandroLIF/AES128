@@ -3,7 +3,6 @@
 #include "subBytes.h"
 #include "AES128.h"
 
-
 /*
     Round Constants
     https://en.wikipedia.org/wiki/Rijndael_key_schedule#Rcon
@@ -39,5 +38,4 @@ void expand(unsigned char* const cipherKey){
             nextByte++;
         }
     }
-    
 }
