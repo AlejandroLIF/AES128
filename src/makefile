@@ -24,6 +24,12 @@ shiftRows.o : shiftRows.c
 	
 subBytes.o : subBytes.c
 	$(CC)  -c -Wall subBytes.c
-	
+
+test: AES128_test.o addRoundKey.o keyExpansion.o mixColumns.o rotateWord.o shiftRows.o subBytes.o
+	$(CC) $(ARGS) -o AES128_test.run AES128_test.o addRoundKey.o keyExpansion.o mixColumns.o rotateWord.o shiftRows.o subBytes.o
+    
+AES128_test.o : AES128_test.c
+	$(CC) -c -Wall AES128_test.c
+        
 clean:
 	rm *.o
