@@ -41,16 +41,17 @@ void encryptFile(char* fileName, char* key){
     unsigned char keyArray[176]; //keyArray should hold enough memory for the expanded key
     unsigned char data[BLOCK_SIZE];
     unsigned char bytesRead;
+    int i;
     parseKey(key, keyArray);
     expand(&keyArray[0]);
     
-    FILE *ifp = fopen(fileName, "r");
+    FILE *ifp = fopen(fileName, "rb");
     if(ifp == NULL){
         printf("ERROR: invalid input file\r\n");
         exit(-1);//Cannot continue
     }
     
-    FILE *ofp = fopen("AES128_encrypted_output", "w");
+    FILE *ofp = fopen("AES128_encrypted_output", "wb");
     if(ifp == NULL){
         printf("ERROR: unable to write output to AES128_encrypted_output\r\n");
         fclose(ifp);
@@ -60,8 +61,15 @@ void encryptFile(char* fileName, char* key){
     do{
         memset(&data[0], 0, BLOCK_SIZE); //Make sure "data" holds all zeroes.
         bytesRead = fread(&data[0], 1, BLOCK_SIZE, ifp);
+        
+        if(bytesRead < BLOCK_SIZE){ //The last block may require padding
+            for(i = 0; i < BLOCK_SIZE - bytesRead; i++){
+                data[BLOCK_SIZE - 1 - i] = BLOCK_SIZE - bytesRead;
+            }
+        }
+        
         encryptBlock(&data[0], &keyArray[0]);
-        fwrite(&data[0], 1, bytesRead, ofp);
+        fwrite(&data[0], 1, BLOCK_SIZE, ofp);
     }while(bytesRead == BLOCK_SIZE); //Read until EOF
     
     fclose(ifp);
@@ -90,16 +98,18 @@ void decryptFile(char* fileName, char* key){
     unsigned char keyArray[176];
     unsigned char data[BLOCK_SIZE];
     unsigned char bytesRead;
+    int i;
+    unsigned char paddingBytes;
     parseKey(key, keyArray);
     expand(&keyArray[0]);
     
-    FILE *ifp = fopen(fileName, "r");
+    FILE *ifp = fopen(fileName, "rb");
     if(ifp == NULL){
         printf("ERROR: invalid input file\r\n");
         exit(-1);//Cannot continue
     }
     
-    FILE *ofp = fopen("AES128_decrypted_output", "w");
+    FILE *ofp = fopen("AES128_decrypted_output", "wb");
     if(ifp == NULL){
         printf("ERROR: unable to write output to AES128_decrypted_output\r\n");
         fclose(ifp);
@@ -110,7 +120,20 @@ void decryptFile(char* fileName, char* key){
         memset(&data[0], 0, BLOCK_SIZE); //Make sure "data" holds all zeroes.
         bytesRead = fread(&data[0], 1, BLOCK_SIZE, ifp);
         decryptBlock(&data[0], &keyArray[0]);
-        fwrite(&data[0], 1, BLOCK_SIZE, ofp);
+        
+        paddingBytes = data[BLOCK_SIZE - 1];
+        //FIXME: THE CASE WHEN ONLY 1 PADDING BYTE IS ADDED IS NOT BEING HANDLED!
+        if(paddingBytes < BLOCK_SIZE && paddingBytes > 1){ //This may be the last block.
+            for(i = 0; i < paddingBytes; i++){
+                if(data[BLOCK_SIZE - 1 - i] != paddingBytes){
+                    break;
+                }
+            }
+            if(i == paddingBytes){
+                bytesRead = BLOCK_SIZE - paddingBytes;
+            }
+        }
+        fwrite(&data[0], 1, bytesRead, ofp);
     }while(bytesRead == BLOCK_SIZE); //Read until EOF
     
     fclose(ifp);
