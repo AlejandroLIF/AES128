@@ -19,8 +19,9 @@ void parseKey(char* key, unsigned char* const keyArray);
 
 int main(int argc, char *argv[]){
     if(argc != 4){
-        IO_ERR: printf("Usage: %s [-encrypt|-decrypt] [file] [16-byte HEX Key]\r\n", argv[0]);
+        IO_ERR: printf("Usage: %s [-encrypt|-decrypt] [file] [32-char HEX Key | 16-char ASCII Key]\r\n", argv[0]);
         printf("Example: %s -encrypt myFile.txt 00112233445566778899AABBCCDDEEFF\r\n", argv[0]);
+        printf("Example: %s -decrypt encrypted.bin 12345TheKey12345\r\n", argv[0]);
         return -1;
     }
     else{
@@ -122,7 +123,7 @@ void decryptFile(char* fileName, char* key){
         decryptBlock(&data[0], &keyArray[0]);
         
         paddingBytes = data[BLOCK_SIZE - 1];
-        //FIXME: THE CASE WHEN ONLY 1 PADDING BYTE IS ADDED IS NOT BEING HANDLED!
+        //TODO: THE CASE WHEN ONLY 1 PADDING BYTE IS ADDED IS NOT BEING HANDLED!
         if(paddingBytes < BLOCK_SIZE && paddingBytes > 1){ //This may be the last block.
             for(i = 0; i < paddingBytes; i++){
                 if(data[BLOCK_SIZE - 1 - i] != paddingBytes){
@@ -160,27 +161,33 @@ void decryptBlock(unsigned char* const block, const unsigned char* const expande
 
 /*
     Parse the key from its string representation to a byte array.
-*/
+*/    
 void parseKey(char* key, unsigned char* const keyArray){
     char* temp = key;
     int i = 0;
     char substring[3] = {0, 0, 0};
-    //Find the null terminator
+    // Find the null terminator
     while(*temp){
         temp++;
         i++;
     }
     
-    if(i != 32){ //If the key isn't composed of 32 characters
-        printf("ERROR: Invalid key\r\n");
-        exit(-1); //Cannot continue
+    if(i == 32){ //32-char Hex KEY
+        // Go through each byte
+        for(i = 15; i >= 0; i--){
+            // Cycle back two characters
+            temp -= 2;
+            memcpy(substring, temp, 2);
+            keyArray[i] = (unsigned char) strtol(&substring[0], &key, 16);
+        }
     }
-    
-    //Go through each byte
-    for(i = 15; i >= 0; i--){
-        //Cycle back two characters
-        temp -= 2;
-        memcpy(substring, temp, 2);
-        keyArray[i] = (unsigned char) strtol(&substring[0], &key, 16);
+    else if(i == 16){ //16-char plaintext key
+        for(i = 0; i<16; i++){
+        keyArray[i] = (unsigned char)key[i];
+        }
+    }
+    else{
+        printf("ERROR: Invalid key. Accepted lengths: 16-char plaintext or 32-char HEX. Input length: %i\r\n", i);
+        exit(-1); //Cannot continue
     }
 }
